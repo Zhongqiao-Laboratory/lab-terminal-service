@@ -88,11 +88,26 @@ jobs:
         with:
           node-version: '22'
 
-      # gitleaks-action 在 PR 场景下必须拿到 GITHUB_TOKEN，否则直接失败。
-      - name: gitleaks 扫描
-        uses: gitleaks/gitleaks-action@v2
+      # 为什么不用 gitleaks/gitleaks-action：这个仓库 2026-11 迁进组织（Zhongqiao-Laboratory）后，
+      # 该 action 对「组织拥有的仓库」强制要求 GITLEAKS_LICENSE（个人账号不需要），
+      # 缺 license 会直接报 "missing gitleaks license" 并让门 3 变红。
+      # CLI 本身是 MIT，没有这道限制，所以这里改成装 CLI 再跑，行为与 action 一致（扫全部历史）。
+      # 版本钉死并校验官方 checksums：CI 拉的二进制不能只信一个 URL。
+      - name: 安装 gitleaks（CLI，版本钉死 + 校验和）
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GL_VERSION: 8.30.1
+        run: |
+          set -euo pipefail
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GL_VERSION}"
+          curl -fsSL "$base/gitleaks_${GL_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
+          curl -fsSL "$base/gitleaks_${GL_VERSION}_checksums.txt" -o /tmp/gitleaks.sums
+          cd /tmp && sha256sum --ignore-missing -c gitleaks.sums
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: gitleaks 扫描
+        run: gitleaks git . --redact --no-banner --exit-code 1
 
       # 这一层是为了让贡献者在本地也能跑同一套规则（gitleaks 装在本地比较麻烦）。
       # 它只是正则兜底，扫不出"实验室 433 房间的那台服务器"这类信息，人工 Review 仍不能省。
@@ -121,12 +136,17 @@ jobs:
       #   这两家对非浏览器客户端一律回 403（反爬），人用浏览器打开是正常的，不算断链。
       #   **不要**图省事把 403 加进 --accept —— 那会连"真的 403（无权限 / 已下线）"一起放过。
       #   再加别的这类域名时，请在这里再补一条 --exclude 并写清是哪一家、为什么。
+      # --max-retries 2：
+      #   2026-11-06 的推送里，download.samba.org 那条链接偶发超时（0 个 error、1 个 timeout），
+      #   一次抖动就把整道门判红没有意义；重试两次仍然失败才算真断。超时 ≠ 断链，
+      #   所以这里加的是重试，不是把 timeout 放进 --accept。
       - name: 跑 lychee
         uses: lycheeverse/lychee-action@v2
         with:
           args: >-
             --no-progress
             --accept 200,206,429,503
+            --max-retries 2
             --exclude '^https?://(www\.)?(stackoverflow\.com|reddit\.com)'
             --exclude-path site
             --exclude-path .venv
