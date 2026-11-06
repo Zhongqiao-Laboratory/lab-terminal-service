@@ -99,10 +99,11 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/gitleaks/gitleaks/releases/download/v${GL_VERSION}"
-          curl -fsSL "$base/gitleaks_${GL_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
-          curl -fsSL "$base/gitleaks_${GL_VERSION}_checksums.txt" -o /tmp/gitleaks.sums
-          cd /tmp && sha256sum --ignore-missing -c gitleaks.sums
-          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          cd /tmp
+          curl -fsSL "$base/gitleaks_${GL_VERSION}_linux_x64.tar.gz" -o "gitleaks_${GL_VERSION}_linux_x64.tar.gz"
+          curl -fsSL "$base/gitleaks_${GL_VERSION}_checksums.txt" -o gitleaks.sums
+          sha256sum --ignore-missing -c gitleaks.sums
+          tar -xzf "gitleaks_${GL_VERSION}_linux_x64.tar.gz" gitleaks
           sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
           gitleaks version
 
@@ -136,7 +137,9 @@ jobs:
       #   这两家对非浏览器客户端一律回 403（反爬），人用浏览器打开是正常的，不算断链。
       #   **不要**图省事把 403 加进 --accept —— 那会连"真的 403（无权限 / 已下线）"一起放过。
       #   再加别的这类域名时，请在这里再补一条 --exclude 并写清是哪一家、为什么。
-      # --max-retries 2：
+      # --timeout 45（默认 20s）与 --max-retries 2：
+      #   download.samba.org 那台回 503 要约 23 秒才返回头，20 秒的默认超时先把它判成 timeout。
+      #   它本来就在 --accept 里（503），慢不等于断。
       #   2026-11-06 的推送里，download.samba.org 那条链接偶发超时（0 个 error、1 个 timeout），
       #   一次抖动就把整道门判红没有意义；重试两次仍然失败才算真断。超时 ≠ 断链，
       #   所以这里加的是重试，不是把 timeout 放进 --accept。
@@ -146,6 +149,7 @@ jobs:
           args: >-
             --no-progress
             --accept 200,206,429,503
+            --timeout 45
             --max-retries 2
             --exclude '^https?://(www\.)?(stackoverflow\.com|reddit\.com)'
             --exclude-path site
