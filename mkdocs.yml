@@ -12,7 +12,7 @@ site_name: 终端服务部 · 技术知识库
 site_description: 上海中侨大学 人工智能学院 具身智能研究所 · 终端服务部（Terminal Service Department）的技术知识库——服务器、网络、Agent 平台、生成式工作流与边缘设备
 site_author: 实验室终端服务部
 # site_url 用于生成 canonical 链接与 sitemap。Pages 上线后就是下面这个地址。
-site_url: https://publieople.github.io/lab-terminal-service/
+site_url: https://zhongqiao-laboratory.github.io/lab-terminal-service/
 copyright: 实验室终端服务部 · 采用 CC BY-SA 4.0 许可（待实验室确认）
 
 docs_dir: docs
@@ -122,7 +122,7 @@ extra:
   generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/publieople/lab-terminal-service
+      link: https://github.com/Zhongqiao-Laboratory/lab-terminal-service
       name: 本仓库
 
 extra_css:

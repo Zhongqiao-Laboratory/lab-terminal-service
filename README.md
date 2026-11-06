@@ -6,7 +6,7 @@
 
 实验室主书是 [Xinlanmy/laboratory-knowledge-base](https://github.com/Xinlanmy/laboratory-knowledge-base)：各部门仓库的正文留在各自仓库里，主书登记链接与元数据。登记方式见 [并入主书说明.md](并入主书说明.md)。
 
-> 站点：<https://publieople.github.io/lab-terminal-service/>
+> 站点：<https://zhongqiao-laboratory.github.io/lab-terminal-service/>
 
 ---
 
@@ -32,7 +32,7 @@
 | 我想…… | 去哪 |
 | --- | --- |
 | 知道终端服务部是干什么的 | [部门介绍](docs/部门/终端服务部/README.md) |
-| 申请服务器 / 网络 / 设备接入，或报故障 | [提一个服务请求 Issue](https://github.com/publieople/lab-terminal-service/issues/new/choose) |
+| 申请服务器 / 网络 / 设备接入，或报故障 | [提一个服务请求 Issue](https://github.com/Zhongqiao-Laboratory/lab-terminal-service/issues/new/choose) |
 | 按顺序学一件事 | [学习](docs/部门/终端服务部/学习/README.md) |
 | 查某个技术怎么用 | [参考](docs/部门/终端服务部/参考/README.md) |
 | 看我们踩过哪些坑 | [经验](docs/部门/终端服务部/经验/README.md) |
